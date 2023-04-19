@@ -19,3 +19,4 @@ Data
 'CGHdataset' is the SNP genotyping data used in 'RealData2.R' file.
 
 'SNPdata.7z' is the SNP genotyping data used in 'RealData2.R' file.
+

@@ -140,27 +140,27 @@ estimate5=sara$index[which(sara$S.index.>thres)]
 ##############################show plots
 par(mfrow=c(2,3))
 yy=y[3,]
-plot(x, yy, xlim=c(1000,1500), ylim=c(-1,0.5), xlab="locations", ylab="Log 2 ratio", main="original CBS", pch=20, col=8)
+plot(x, yy, xlim=c(1000,1500), ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="original CBS", pch=20, col=8)
 fitted=NULL
 for(i in 1:(length(estimate1)+1)){
   fitted=c(fitted,rep(mean(yy[(c(0,estimate1,n)[i]+1):(c(0,estimate1,n)[i+1])]), c(0,estimate1,n)[i+1]-c(0,estimate1,n)[i]))
 }
 lines(fitted,col=2,lwd=2)
-plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log 2 ratio", main="original SaRa", pch=20, col=8)
+plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="original SaRa", pch=20, col=8)
 fitted=NULL
 for(i in 1:(length(estimate2)+1)){
   fitted=c(fitted,rep(mean(yy[(c(0,estimate2,n)[i]+1):(c(0,estimate2,n)[i+1])]), c(0,estimate2,n)[i+1]-c(0,estimate2,n)[i]))
 }
 lines(fitted,col=2,lwd=2)
-plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log 2 ratio", main="proposed", pch=20, col=8)
+plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="proposed", pch=20, col=8)
 lines(x ,fit[3,]+wave[3,], col=2, lwd=2)
-plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log 2 ratio", main="adjusted CBS", pch=20, col=8)
+plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="adjusted CBS", pch=20, col=8)
 fitted=NULL
 for(i in 1:(length(estimate4)+1)){
   fitted=c(fitted,rep(mean(yy[(c(0,estimate4,n)[i]+1):(c(0,estimate4,n)[i+1])]), c(0,estimate4,n)[i+1]-c(0,estimate4,n)[i]))
 }
 lines(fitted,col=2,lwd=2)
-plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log 2 ratio", main="adjusted SaRa", pch=20, col=8)
+plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="adjusted SaRa", pch=20, col=8)
 fitted=NULL
 for(i in 1:(length(estimate5)+1)){
   fitted=c(fitted,rep(mean(yy[(c(0,estimate5,n)[i]+1):(c(0,estimate5,n)[i+1])]), c(0,estimate5,n)[i+1]-c(0,estimate5,n)[i]))

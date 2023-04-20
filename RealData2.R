@@ -86,7 +86,7 @@ screening<-function(x, y, h=10){       #local linear smoothing (rightlimit-leftl
 }
 
 #################################chromosome 21
-y=rbind(SNPdata$X99HI0700A.Log.R.Ratio[which(SNPdata$Chr==21)],
+y=rbind(SNPdata$X99HI0697A.Log.R.Ratio[which(SNPdata$Chr==21)],
         SNPdata$X99HI0698C.Log.R.Ratio[which(SNPdata$Chr==21)],
         SNPdata$X99HI0700A.Log.R.Ratio[which(SNPdata$Chr==21)])              
 n=ncol(y)
@@ -107,6 +107,7 @@ set.seed(18)
 CBS=DNAcopy::segment(CNA(t(y), chrom=rep(1,n), maploc=1:n))
 estimate1=sort(unique(CBS$output[,4]))
 estimate1=estimate1[-length(estimate1)]
+if(length(which(diff(estimate1)<5))>0)  estimate1=estimate1[-which(diff(estimate1)<5)]
 ##############################method2 SaRa
 sara=MultiScan(y,h=10)
 thres=threshold(y,alpha=0.1,h=10)
@@ -132,6 +133,7 @@ yy=y-wave
 CBS=DNAcopy::segment(CNA(t(yy), chrom=rep(1,n), maploc=1:n))
 estimate4=sort(unique(CBS$output[,4]))
 estimate4=estimate4[-length(estimate4)]
+if(length(which(diff(estimate4)<5))>0)  estimate4=estimate4[-which(diff(estimate4)<5)]
 ##############################method5 SaRa-adjusted
 sara=MultiScan(yy,h=10)
 thres=threshold(yy,alpha=0.1,h=10)
@@ -139,7 +141,7 @@ estimate5=sara$index[which(sara$S.index.>thres)]
 
 ##############################show plots
 par(mfrow=c(2,3))
-yy=y[3,]
+yy=y[2,]
 plot(x, yy, xlim=c(1000,1500), ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="original CBS", pch=20, col=8)
 fitted=NULL
 for(i in 1:(length(estimate1)+1)){
@@ -153,7 +155,7 @@ for(i in 1:(length(estimate2)+1)){
 }
 lines(fitted,col=2,lwd=2)
 plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="proposed", pch=20, col=8)
-lines(x ,fit[3,]+wave[3,], col=2, lwd=2)
+lines(x ,fit[2,]+wave[2,], col=2, lwd=2)
 plot(x, yy, xlim=c(1000,1500),  ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="adjusted CBS", pch=20, col=8)
 fitted=NULL
 for(i in 1:(length(estimate4)+1)){
@@ -168,7 +170,7 @@ for(i in 1:(length(estimate5)+1)){
 lines(fitted,col=2,lwd=2)
 
 #################################chromosome 22
-y=rbind(SNPdata$X99HI0700A.Log.R.Ratio[which(SNPdata$Chr==22)],
+y=rbind(SNPdata$X99HI0697A.Log.R.Ratio[which(SNPdata$Chr==22)],
         SNPdata$X99HI0698C.Log.R.Ratio[which(SNPdata$Chr==22)],
         SNPdata$X99HI0700A.Log.R.Ratio[which(SNPdata$Chr==22)])              
 n=ncol(y)
@@ -189,6 +191,7 @@ set.seed(18)
 CBS=DNAcopy::segment(CNA(t(y), chrom=rep(1,n), maploc=1:n))
 Estimate1=sort(unique(CBS$output[,4]))
 Estimate1=Estimate1[-length(Estimate1)]
+if(length(which(diff(Estimate1)<5))>0)  Estimate1=Estimate1[-which(diff(Estimate1)<5)]
 ##############################method2 SaRa
 sara=MultiScan(y,h=10)
 thres=threshold(y,alpha=0.1,h=10)
@@ -214,6 +217,7 @@ yy=y-WAVE
 CBS=DNAcopy::segment(CNA(t(yy), chrom=rep(1,n), maploc=1:n))
 Estimate4=sort(unique(CBS$output[,4]))
 Estimate4=Estimate4[-length(Estimate4)]
+if(length(which(diff(Estimate4)<5))>0)  Estimate4=Estimate4[-which(diff(Estimate4)<5)]
 ##############################method5 SaRa-adjusted
 sara=MultiScan(yy,h=10)
 thres=threshold(yy,alpha=0.1,h=10)

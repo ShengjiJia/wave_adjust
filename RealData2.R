@@ -168,7 +168,7 @@ for(i in 1:(length(estimate5)+1)){
   fitted=c(fitted,rep(mean(yy[(c(0,estimate5,n)[i]+1):(c(0,estimate5,n)[i+1])]), c(0,estimate5,n)[i+1]-c(0,estimate5,n)[i]))
 }
 lines(fitted,col=2,lwd=2)
-plot(x=(120:250)/10,y=0.5*sin(2*pi*(120:250)/250),xlab="locations",ylab="signals",ylim=c(-0.5,0.6),type="l",lty=2,lwd=2,col="blue")
+plot(x=(120:250)/10,y=0.5*sin(2*pi*(120:250)/250),xlab="locations",ylab="signals",ylim=c(-1,2),type="l",lty=2,lwd=2,col="blue")
 lines(x=(120:250)/10,y=-0.2*(((120:250)/10)<14)+0.3*(((120:250)/10)>=14)*(((120:250)/10)<22)+0.1*(((120:250)/10)>=22),type="l",lty=2,lwd=2,col="red")
 lines(x=(120:250)/10,y=0.5*sin(2*pi*(120:250)/250)-0.2*(((120:250)/10)<14)+0.3*(((120:250)/10)>=14)*(((120:250)/10)<22)+0.1*(((120:250)/10)>=22),lwd=2,col=1)
 legend("topright", legend=c("waves","CNVs","observations"),lty=c(2,2,1),lwd=c(2,2,2),col=c("blue","red","black"),bty="n")

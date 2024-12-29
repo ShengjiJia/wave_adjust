@@ -1,12 +1,10 @@
+#######get data, please modify the file path if necessary
+CGHdata <- read.csv("C:/Users/PC/Desktop/我的文档/Research/Projects/change points(wave adjust)/CGHdataset.csv")
+
 library(grpreg)
 library(KernSmooth)
-library(np)
 library(DNAcopy)
 library(imputeTS)
-
-#######get data
-CGHdata <- read.csv("C:/Users/Acer/Desktop/My Document/Documents/Research/Projects/change points(wave adjust)/CGHdataset.csv",header=T)
-
 #################################define some functions
 estimateSigma<-function (Y, h = 10) {  
   n = length(Y)
@@ -119,13 +117,10 @@ x=1:n
 y=t(as.matrix(data))
 y[which(abs(y)>2)]=NA     #delete outliers
 for (i in 1:d) {y[i,]=na_ma(y[i,],k=5,weighting="linear")}        #imputation
-h=10
 x1=matrix(1,nrow=n,ncol=n)
 for(i in 1:(n-1)) {x1[i,(i+1):n]=0} 
-for(i in 2:n) {x1[,i]=x1[,i]-locpoly(x,x1[,i],kernel="epanech",bandwidth=h,gridsize=n)$y }      
-XX=kronecker(x1, diag(1, d))                   
 group=NULL
-for (i in 1:n) group<-c(group,rep(i-1,d))  
+for (i in 1:n) group<-c(group,rep(i-1,d))                    
 
 ##############################method1 CBS
 set.seed(18)
@@ -138,11 +133,27 @@ sara=MultiScan(y,h=20)
 thres=threshold(y,alpha=0.05,h=20)
 estimate2=sara$index[which(sara$S.index.>thres)]
 ##############################method3 gSCAD+adjusted  
+hh=c(10,15,20)
+gBIC=1:3
+for(j in 1:3){
+  h=hh[j]
+  xx1=x1
+  for(i in 2:n) {xx1[,i]=x1[,i]-locpoly(x,x1[,i],kernel="epanech",bandwidth=h,gridsize=n)$y }      
+  XX=kronecker(xx1, diag(1, d)) 
+  y0=matrix(0,nrow=d,ncol=n)
+  for (i in 1:d) {y0[i,]=y[i,]-locpoly(x,y[i,],kernel="epanech",bandwidth=h,gridsize=n)$y}
+  y0=as.vector(y0)            
+  gSCAD=grpreg(X=XX[,2:length(y0)], y=y0, group=group[2:length(y0)], penalty="grSCAD",family="gaussian", gmax=40) 
+  gBIC[j]=min(log(gSCAD$deviance/n)+gSCAD$df*0.2*log(n)*log(log(n))/n)   #minimize gBIC for fixed h
+}
+h=hh[which.min(gBIC)]        #optimal h
+for(i in 2:n) {x1[,i]=x1[,i]-locpoly(x,x1[,i],kernel="epanech",bandwidth=h,gridsize=n)$y }      
+XX=kronecker(x1, diag(1, d)) 
 y0=matrix(0,nrow=d,ncol=n)
 for (i in 1:d) {y0[i,]=y[i,]-locpoly(x,y[i,],kernel="epanech",bandwidth=h,gridsize=n)$y}
 y0=as.vector(y0)            
 gSCAD=grpreg(X=XX[,2:length(y0)], y=y0, group=group[2:length(y0)], penalty="grSCAD",family="gaussian", gmax=40) 
-opt=which.min(log(gSCAD$loss/n)+gSCAD$df*0.2*log(n)*log(log(n))/n)   #minimize gBIC
+opt=which.min(log(gSCAD$deviance/n)+gSCAD$df*0.2*log(n)*log(log(n))/n)   #optimal lambda
 estimate3=as.vector((which(gSCAD$beta[,opt]!=0)[d*(1:(length(which(gSCAD$beta[,opt]!=0))/d))]/d-1)[-1])
 if(length(which(diff(estimate3)<5))>0)  estimate3=estimate3[-which(diff(estimate3)<5)]
 #############################wave estimation
@@ -207,3 +218,5 @@ for(i in 1:(length(estimate5)+1)){
   fitted=c(fitted,rep(mean(yy[(c(0,estimate5,n)[i]+1):(c(0,estimate5,n)[i+1])]), c(0,estimate5,n)[i+1]-c(0,estimate5,n)[i]))
 }
 lines(fitted,col=2,lwd=2)
+re=yy-fit[4,]-WAVE[4,]
+qqnorm(re)

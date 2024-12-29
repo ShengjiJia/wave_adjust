@@ -1,12 +1,10 @@
+#######get data, please modify the file path if necessary
+SNPdata <- read.delim("C:/Users/PC/Desktop/我的文档/Research/Projects/change points(wave adjust)/SNPdata.txt")
+
 library(grpreg)
 library(KernSmooth)
-library(np)
 library(DNAcopy)
 library(imputeTS)
-
-#######get data
-SNPdata <- read.delim("C:/Users/Acer/Desktop/My Document/Documents/Research/Projects/change points(wave adjust)/SNPdata.txt")
-
 #################################define some functions
 estimateSigma<-function (Y, h = 10) {  
   n = length(Y)
@@ -117,7 +115,7 @@ y0=matrix(0,nrow=d,ncol=n)
 for (i in 1:d) {y0[i,]=y[i,]-locpoly(x,y[i,],kernel="epanech",bandwidth=h,gridsize=n)$y}
 y0=as.vector(y0)            
 gSCAD=grpreg(X=XX[,2:length(y0)], y=y0, group=group[2:length(y0)], penalty="grSCAD",family="gaussian", lambda=0.003*0.9^(1:10-1)) 
-opt=which.min(log(gSCAD$loss/n)+gSCAD$df*0.3*log(n)*log(log(n))/n)   #minimize gBIC
+opt=which.min(log(gSCAD$deviance/n)+gSCAD$df*0.3*log(n)*log(log(n))/n)   #minimize gBIC
 estimate3=as.vector((which(gSCAD$beta[,opt]!=0)[d*(1:(length(which(gSCAD$beta[,opt]!=0))/d))]/d-1)[-1])
 if(length(which(diff(estimate3)<5))>0)  estimate3=estimate3[-which(diff(estimate3)<5)]
 #############################wave estimation
@@ -205,7 +203,7 @@ y0=matrix(0,nrow=d,ncol=n)
 for (i in 1:d) {y0[i,]=y[i,]-locpoly(x,y[i,],kernel="epanech",bandwidth=h,gridsize=n)$y}
 y0=as.vector(y0)            
 gSCAD=grpreg(X=XX[,2:length(y0)], y=y0, group=group[2:length(y0)], penalty="grSCAD",family="gaussian", lambda=0.003*0.95^(1:10-1)) 
-opt=which.min(log(gSCAD$loss/n)+gSCAD$df*0.3*log(n)*log(log(n))/n)   #minimize gBIC
+opt=which.min(log(gSCAD$deviance/n)+gSCAD$df*0.3*log(n)*log(log(n))/n)   #minimize gBIC
 Estimate3=as.vector((which(gSCAD$beta[,opt]!=0)[d*(1:(length(which(gSCAD$beta[,opt]!=0))/d))]/d-1)[-1])
 if(length(which(diff(Estimate3)<5))>0)  Estimate3=Estimate3[-which(diff(Estimate3)<5)]
 #############################wave estimation

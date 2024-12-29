@@ -1,6 +1,10 @@
+#######get data, please modify the file path if necessary
+CGHdata <- read.csv("C:/Users/PC/Desktop/我的文档/Research/Projects/change points(wave adjust)/CGHdataset.csv")
+
 library(grpreg)
 library(KernSmooth)
 library(np)
+library(imputeTS)
 
 #################################define some functions
 TruePositive<-function(estimate, true, error=3){         
@@ -42,6 +46,20 @@ screening<-function(x, y, h=10){       #local linear smoothing (rightlimit-leftl
   return(L)
 }
 
+##############################real wave estimation
+y=CGHdata[2:2301,19]               
+x=1:length(y)
+y[which(abs(y)>2)]=NA     #delete outliers
+y=na_ma(y,k=5,weighting="linear")     #imputation
+h=10
+x1=matrix(1,nrow=length(y),ncol=length(y))
+for(i in 1:(length(y)-1)) {x1[i,(i+1):length(y)]=0} 
+X1=x1
+for(i in 2:length(y)) {X1[,i]=x1[,i]-locpoly(x,x1[,i],kernel="epanech",bandwidth=h,gridsize=length(y))$y }      
+y0=y-locpoly(x,y,kernel="epanech",bandwidth=h,gridsize=length(y))$y
+gSCAD=grpreg(X=X1[,2:length(y)], y=y0, penalty="grSCAD",family="gaussian",lambda=0.005) 
+re=y-x1%*%gSCAD$beta
+rwave=10*locpoly(x,re,kernel="epanech",bandwidth=20,gridsize=1000)$y
 #################################Simulation1
 set.seed(23)
 n=1000       #sample size
@@ -65,17 +83,21 @@ TP1=matrix(NA,nr=100,nc=20)                #true positive
 TP2=matrix(NA,nr=100,nc=20)
 TP3=matrix(NA,nr=100,nc=20)
 TP4=matrix(NA,nr=100,nc=20)
+TP5=matrix(NA,nr=100,nc=20)
+TP6=matrix(NA,nr=100,nc=20)
 FP1=matrix(NA,nr=100,nc=20)                #false positive
 FP2=matrix(NA,nr=100,nc=20)
 FP3=matrix(NA,nr=100,nc=20)
 FP4=matrix(NA,nr=100,nc=20)
+FP5=matrix(NA,nr=100,nc=20)
+FP6=matrix(NA,nr=100,nc=20)
 for(j in 1:100){
   ##############################data generation
   beta=matrix(sample(c(-1,-0.5,0,0.5,1), size=J*d, replace = TRUE), nrow=d)
   theta=runif(1,min=0,max=2*pi)
   signal=matrix(rep(0, n*d), nrow=d)
-  y=matrix(rep(0, n*d), nrow=d)    #with wave
   y0=matrix(rep(0, n*d), nrow=d)    #without wave
+  y=matrix(rep(0, n*d), nrow=d)    #with wave
   wave=matrix(rep(0, n*d), nrow=d)
   for(k in 1:d){
     wave[k, ]=sample(c(-0.5,-0.3,0.3,0.5),size=1)*sin(pi*x/50+theta)
@@ -117,8 +139,40 @@ for(j in 1:100){
   }
 }
 
+set.seed(18)
+for(j in 1:100){
+  beta=matrix(sample(c(-1,-0.5,0,0.5,1), size=J*d, replace = TRUE), nrow=d)
+  signal=matrix(rep(0, n*d), nrow=d)
+  y0=matrix(rep(0, n*d), nrow=d)    #without wave
+  y1=matrix(rep(0, n*d), nrow=d)    #with real wave
+  realwave=matrix(rep(0, n*d), nrow=d)
+  for(k in 1:d){
+    realwave[k, ]=sample(c(-1,-1.5,1,1.5),size=1)*rwave
+    signal[k, ]=0
+    for(i in 1:J) {signal[k, ]<-signal[k, ]+beta[k,i]*(x>tau[i])}
+    y0[k, ]=signal[k, ]+rnorm(n,mean=0,sd=0.2)  
+    y1[k, ]=realwave[k, ]+y0[k, ]
+  }
+  ##############################gSCAD+realwave   
+  yy=as.vector(y1)          
+  gSCAD1=grpreg(X=X[,2:length(yy)], y=yy, group=group[2:length(yy)], penalty="grSCAD",family="gaussian", gmax=20) 
+  for(i in 1:dim(gSCAD1$beta)[2]){
+    estimate=as.vector((which(gSCAD1$beta[,i]!=0)[d*(1:(length(which(gSCAD1$beta[,i]!=0))/d))]/d-1)[-1])
+    if(length(estimate)<=20)  TP5[j,length(estimate)]=TruePositive(estimate, tau)
+    if(length(estimate)<=20)  FP5[j,length(estimate)]=FalsePositive(estimate, tau)
+  }
+  ##############################gSCAD+realwave adjusted
+  yy=as.vector(t((diag(1,n)-S)%*%t(y1)))
+  gSCAD1=grpreg(X=XX[,2:length(yy)], y=yy, group=group[2:length(yy)], penalty="grSCAD",family="gaussian", gmax=20) 
+  for(i in 1:dim(gSCAD1$beta)[2]){
+    estimate=as.vector((which(gSCAD1$beta[,i]!=0)[d*(1:(length(which(gSCAD1$beta[,i]!=0))/d))]/d-1)[-1])
+    if(length(estimate)<=20)  TP6[j,length(estimate)]=TruePositive(estimate, tau)
+    if(length(estimate)<=20)  FP6[j,length(estimate)]=FalsePositive(estimate, tau)
+  }
+}
+
 ##############################show plots
-par(mfrow=c(2,2))
+par(mfrow=c(3,2))
 plot(x=1:10,y=apply(TP1,2,mean,na.rm=T)[1:10],xlab="Number of detected change-points",ylab="True positives",ylim=c(-1,10),main="Scenario I, True positives", type="b")
 lines(x=1:10,y=apply(TP2,2,mean,na.rm=T)[1:10],type="b",pch=4)
 legend("bottomright", legend=c("SCAD","Lasso"),pch=c(4,1),bty="n")
@@ -131,17 +185,31 @@ legend("bottomright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
 plot(x=1:10,y=apply(FP3,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="False positives",ylim=c(-1,10),main="Scenario II, False positives", type="b")
 lines(x=1:10,y=apply(FP4,2,mean,na.rm=T)[1:10],type="b",pch=4)
 legend("topright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
+plot(x=1:10,y=apply(TP5,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="True positives",ylim=c(-1,10),main="Scenario III, True positives", type="b")
+lines(x=1:10,y=apply(TP6,2,mean,na.rm=T)[1:10],type="b",pch=4)
+legend("bottomright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
+plot(x=1:10,y=apply(FP5,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="False positives",ylim=c(-1,10),main="Scenario III, False positives", type="b")
+lines(x=1:10,y=apply(FP6,2,mean,na.rm=T)[1:10],type="b",pch=4)
+legend("topright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
 
 estimate=as.vector((which(gSCAD$beta[,J]!=0)[d*(1:(length(which(gSCAD$beta[,J]!=0))/d))]/d-1)[-1])
 jumpsize=screening(x,y[1,])[estimate]
 fit=0
 for(i in 1:length(estimate)) {fit<-fit+jumpsize[i]*(x>estimate[i])}
 Wave1=S%*%(y[1,]-fit)
-plot(wave[1,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="true wave")
+plot(wave[1,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="true wave from Scenario II")
 plot(Wave1~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="estimated wave")
 jumpsize=screening(x,y[2,])[estimate]
 fit=0
 for(i in 1:length(estimate)) {fit<-fit+jumpsize[i]*(x>estimate[i])}
 Wave2=S%*%(y[2,]-fit)
-plot(wave[2,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f2(x)",main="true wave")
+plot(wave[2,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f2(x)",main="true wave from Scenario II")
 plot(Wave2~x,type="l",ylim=c(-1,1),xlab="location",ylab="f2(x)",main="estimated wave")
+estimate=as.vector((which(gSCAD1$beta[,J]!=0)[d*(1:(length(which(gSCAD1$beta[,J]!=0))/d))]/d-1)[-1])
+jumpsize=screening(x,y1[1,])[estimate]
+fit=0
+for(i in 1:length(estimate)) {fit<-fit+jumpsize[i]*(x>estimate[i])}
+#Wave3=S%*%(y1[1,]-fit)
+Wave3=locpoly(x,y1[1,]-fit,kernel="epanech",bandwidth=10,gridsize=1000)$y
+plot(realwave[1,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="true wave from Scenario III")
+plot(Wave3~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="estimated wave")

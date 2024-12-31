@@ -167,9 +167,9 @@ for(i in 1:(length(estimate5)+1)){
 }
 lines(fitted,col=2,lwd=2)
 plot(x=(120:250)/10,y=0.5*sin(2*pi*(120:250)/250),xlab="locations",ylab="signals",ylim=c(-1,2),type="l",lty=2,lwd=2,col="blue")
-lines(x=(120:250)/10,y=-0.2*(((120:250)/10)<14)+0.3*(((120:250)/10)>=14)*(((120:250)/10)<22)+0.1*(((120:250)/10)>=22),type="l",lty=2,lwd=2,col="red")
+lines(x=(120:250)/10,y=-0.2*(((120:250)/10)<14)+0.3*(((120:250)/10)>=14)*(((120:250)/10)<22)+0.1*(((120:250)/10)>=22),type="l",lty=3,lwd=2,col="red")
 lines(x=(120:250)/10,y=0.5*sin(2*pi*(120:250)/250)-0.2*(((120:250)/10)<14)+0.3*(((120:250)/10)>=14)*(((120:250)/10)<22)+0.1*(((120:250)/10)>=22),lwd=2,col=1)
-legend("topright", legend=c("waves","CNVs","observations"),lty=c(2,2,1),lwd=c(2,2,2),col=c("blue","red","black"),bty="n")
+#legend("topright", legend=c("waves","CNVs","observations"),lty=c(2,2,1),lwd=c(2,2,2),col=c("blue","red","black"),bty="n")
 
 #################################chromosome 22
 y=rbind(SNPdata$X99HI0697A.Log.R.Ratio[which(SNPdata$Chr==22)],

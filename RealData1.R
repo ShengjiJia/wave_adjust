@@ -190,7 +190,7 @@ plot(x, y[4,], xlab="locations", ylab="Log 2 ratio", main="X1533-13", pch=20, co
 lines(x ,fit[4,]+WAVE[4,], col=2, lwd=2)
 abline(v=estimate3,lty=2)
 
-par(mfrow=c(2,3))
+par(mfrow=c(3,2))
 yy=y[4,]
 plot(x, yy, xlim=c(300,800), ylim=c(-1,1), xlab="locations", ylab="Log 2 ratio", main="original CBS", pch=20, col=8)
 fitted=NULL

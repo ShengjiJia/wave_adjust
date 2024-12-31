@@ -138,7 +138,7 @@ thres=threshold(yy,alpha=0.1,h=10)
 estimate5=sara$index[which(sara$S.index.>thres)]
 
 ##############################show plots
-par(mfrow=c(2,3))
+par(mfrow=c(3,2))
 yy=y[2,]
 plot(x, yy, xlim=c(1000,1500), ylim=c(-1,0.5), xlab="locations", ylab="Log R ratio", main="original CBS", pch=20, col=8)
 fitted=NULL

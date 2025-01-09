@@ -14,9 +14,11 @@ Code
 
 'RealData2.R' is the R code for SNP genotyping data analysis in the paper.
 
+'RealData3.R' is the R code for breast tumor NGS data analysis in the paper.
+
 Data
 
-'CGHdataset' is the SNP genotyping data used in 'RealData2.R' file.
+'CGHdataset' is the bladder tumor aCGH data used in 'RealData1.R' file.
 
 'SNPdata.7z' is the SNP genotyping data used in 'RealData2.R' file.
 

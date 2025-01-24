@@ -128,7 +128,7 @@ j1=which.min(bic)
 estimate5=sort(candidate1[1:j1])
 
 ##############################show figures
-par(mfrow=c(3,2))
+par(mfrow=c(2,3))
 plot(x, y, xlim=c(300,800), ylim=c(0,2.5), xlab="locations", ylab="Log 2 ratio", main="original CBS", pch=20, col=8)
 fitted=NULL
 for(i in 1:(length(estimate1)+1)){

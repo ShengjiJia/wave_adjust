@@ -1,4 +1,4 @@
-#######get data, please modify the file path if necessary
+#######get data
 CGHdata <- read.csv("C:/Users/PC/Desktop/我的文档/Research/Projects/change points(wave adjust)/CGHdataset.csv")
 
 library(grpreg)
@@ -172,22 +172,22 @@ for(j in 1:100){
 }
 
 ##############################show plots
-par(mfrow=c(3,2))
+par(mfrow=c(2,3))
 plot(x=1:10,y=apply(TP1,2,mean,na.rm=T)[1:10],xlab="Number of detected change-points",ylab="True positives",ylim=c(-1,10),main="Scenario I, True positives", type="b")
 lines(x=1:10,y=apply(TP2,2,mean,na.rm=T)[1:10],type="b",pch=4)
 legend("bottomright", legend=c("SCAD","Lasso"),pch=c(4,1),bty="n")
-plot(x=1:10,y=apply(FP1,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="False positives",ylim=c(-1,10),main="Scenario I, False positives", type="b")
-lines(x=1:10,y=apply(FP2,2,mean,na.rm=T)[1:10],type="b",pch=4)
-legend("topright", legend=c("SCAD","Lasso"),pch=c(4,1),bty="n")
 plot(x=1:10,y=apply(TP3,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="True positives",ylim=c(-1,10),main="Scenario II, True positives", type="b")
 lines(x=1:10,y=apply(TP4,2,mean,na.rm=T)[1:10],type="b",pch=4)
 legend("bottomright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
-plot(x=1:10,y=apply(FP3,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="False positives",ylim=c(-1,10),main="Scenario II, False positives", type="b")
-lines(x=1:10,y=apply(FP4,2,mean,na.rm=T)[1:10],type="b",pch=4)
-legend("topright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
 plot(x=1:10,y=apply(TP5,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="True positives",ylim=c(-1,10),main="Scenario III, True positives", type="b")
 lines(x=1:10,y=apply(TP6,2,mean,na.rm=T)[1:10],type="b",pch=4)
 legend("bottomright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
+plot(x=1:10,y=apply(FP1,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="False positives",ylim=c(-1,10),main="Scenario I, False positives", type="b")
+lines(x=1:10,y=apply(FP2,2,mean,na.rm=T)[1:10],type="b",pch=4)
+legend("topright", legend=c("SCAD","Lasso"),pch=c(4,1),bty="n")
+plot(x=1:10,y=apply(FP3,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="False positives",ylim=c(-1,10),main="Scenario II, False positives", type="b")
+lines(x=1:10,y=apply(FP4,2,mean,na.rm=T)[1:10],type="b",pch=4)
+legend("topright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
 plot(x=1:10,y=apply(FP5,2,mean,na.rm=T)[1:10], xlab="Number of detected change-points",ylab="False positives",ylim=c(-1,10),main="Scenario III, False positives", type="b")
 lines(x=1:10,y=apply(FP6,2,mean,na.rm=T)[1:10],type="b",pch=4)
 legend("topright", legend=c("adjustment","no adjustment"),pch=c(4,1),bty="n")
@@ -197,19 +197,19 @@ jumpsize=screening(x,y[1,])[estimate]
 fit=0
 for(i in 1:length(estimate)) {fit<-fit+jumpsize[i]*(x>estimate[i])}
 Wave1=S%*%(y[1,]-fit)
-plot(wave[1,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="true wave from Scenario II")
-plot(Wave1~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="estimated wave")
+plot(wave[1,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="true f1(x) in Scenario II")
+plot(wave[2,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f2(x)",main="true f2(x) in Scenario II")
+plot(realwave[1,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="true f1(x) in Scenario III")
+plot(Wave1~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="estimated f1(x) in Scenario II")
 jumpsize=screening(x,y[2,])[estimate]
 fit=0
 for(i in 1:length(estimate)) {fit<-fit+jumpsize[i]*(x>estimate[i])}
 Wave2=S%*%(y[2,]-fit)
-plot(wave[2,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f2(x)",main="true wave from Scenario II")
-plot(Wave2~x,type="l",ylim=c(-1,1),xlab="location",ylab="f2(x)",main="estimated wave")
+plot(Wave2~x,type="l",ylim=c(-1,1),xlab="location",ylab="f2(x)",main="estimated f2(x) in Scenario II")
 estimate=as.vector((which(gSCAD1$beta[,J]!=0)[d*(1:(length(which(gSCAD1$beta[,J]!=0))/d))]/d-1)[-1])
 jumpsize=screening(x,y1[1,])[estimate]
 fit=0
 for(i in 1:length(estimate)) {fit<-fit+jumpsize[i]*(x>estimate[i])}
 #Wave3=S%*%(y1[1,]-fit)
 Wave3=locpoly(x,y1[1,]-fit,kernel="epanech",bandwidth=10,gridsize=1000)$y
-plot(realwave[1,]~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="true wave from Scenario III")
-plot(Wave3~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="estimated wave")
+plot(Wave3~x,type="l",ylim=c(-1,1),xlab="location",ylab="f1(x)",main="estimated f1(x) in Scenario III")
